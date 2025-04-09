@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TotoPal</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .thumbnail:hover, .thumbnail.active {
+            border: 2px solid blue;
+        }
+        .main-media {
+            width: 400px;
+            height: 400px;
+            object-fit: cover;
+        }
+        .product {
+            border: 1px solid #ccc;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+<h1>All Products</h1>
+
+{% for product in products %}
+<div class="product">
+    <h2>{{ product.name }}</h2>
+    <p>{{ product.description }}</p>
+    <p>Price: Ksh.{{ product.price }}</p>
+
+    <div id="mediaContainer-{{ product.id }}">
+        {% if product.main_image %}
+            <img id="mainImage-{{ product.id }}" src="{{ product.main_image.url }}" class="main-media" alt="Product Image">
+        {% endif %}
+    </div>
+
+    <div>
+        {% if product.main_image %}
+            <img src="{{ product.main_image.url }}" class="thumbnail active" onclick="changeMedia('{{ product.id }}', 'image', '{{ product.main_image.url }}')">
+        {% endif %}
+        {% for media in product.media.all %}
+            {% if media.media_type == "image" and media.image %}
+                <img src="{{ media.image.url }}" class="thumbnail" onclick="changeMedia('{{ product.id }}', 'image', '{{ media.image.url }}')">
+            {% elif media.media_type == "video" and media.video %}
+                <video class="thumbnail" onclick="changeMedia('{{ product.id }}', 'video', '{{ media.video.url }}')" muted>
+                    <source src="{{ media.video.url }}" type="video/mp4">
+                </video>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+
+<script>
+    function changeMedia(productId, type, src) {
+        let container = document.getElementById("mediaContainer-" + productId);
+        container.innerHTML = "";
+
+        if (type === 'image') {
+            container.innerHTML = `<img id="mainImage-${productId}" src="${src}" class="main-media" alt="Product Image">`;
+        } else if (type === 'video') {
+            container.innerHTML = `<video id="mainVideo-${productId}" class="main-media" controls autoplay>
+                                      <source src="${src}" type="video/mp4">
+                                   </video>`;
+        }
+
+        // Highlight active thumbnail
+        $(`#mediaContainer-${productId}`).siblings('div').find('.thumbnail').removeClass('active');
+        $(`#mediaContainer-${productId}`).siblings('div').find(`[src="${src}"]`).addClass('active');
+    }
+</script>
+
+</body>
+</html>
