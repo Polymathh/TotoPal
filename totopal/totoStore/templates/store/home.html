@@ -27,6 +27,14 @@
             padding: 1rem;
             margin-bottom: 2rem;
         }
+        .color-swatch {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-block;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -57,6 +65,18 @@
                     <source src="{{ media.video.url }}" type="video/mp4">
                 </video>
             {% endif %}
+        {% endfor %}
+    </div>
+
+    <!-- Color Swatches -->
+    <div class="color-swatches" id="colorSwatches-{{ product.id }}">
+        {% for color in product.used_colors %}
+            <div class="color-swatch" 
+                 data-color="{{ color }}" 
+                 data-product="{{ product.id }}" 
+                 style="background-color: {{ color }};" 
+                 title="{{ color }}">
+            </div>
         {% endfor %}
     </div>
 </div>
