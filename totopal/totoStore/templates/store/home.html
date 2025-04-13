@@ -34,6 +34,11 @@
             cursor: pointer;
             display: inline-block;
             margin-right: 5px;
+            border: 2px solid transparent;
+        }
+        .color-swatch.active {
+            border: 2px solid #000;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
         }
     </style>
 </head>
@@ -53,15 +58,23 @@
         {% endif %}
     </div>
 
-    <div>
+    <div class="thumbnails">
         {% if product.main_image %}
-            <img src="{{ product.main_image.url }}" class="thumbnail active" onclick="changeMedia('{{ product.id }}', 'image', '{{ product.main_image.url }}')">
+            <img src="{{ product.main_image.url }}" 
+                 class="thumbnail active" 
+                 data-color="{{ product.main_image.color|default:'#ffffff' }}" 
+                 onclick="changeMedia('{{ product.id }}', 'image', '{{ product.main_image.url }}')">
         {% endif %}
         {% for media in product.media.all %}
             {% if media.media_type == "image" and media.image %}
-                <img src="{{ media.image.url }}" class="thumbnail" onclick="changeMedia('{{ product.id }}', 'image', '{{ media.image.url }}')">
+                <img src="{{ media.image.url }}" 
+                     class="thumbnail" 
+                     data-color="{{ media.color }}" 
+                     onclick="changeMedia('{{ product.id }}', 'image', '{{ media.image.url }}')">
             {% elif media.media_type == "video" and media.video %}
-                <video class="thumbnail" onclick="changeMedia('{{ product.id }}', 'video', '{{ media.video.url }}')" muted>
+                <video class="thumbnail" 
+                       data-color="{{ media.color }}" 
+                       onclick="changeMedia('{{ product.id }}', 'video', '{{ media.video.url }}')" muted>
                     <source src="{{ media.video.url }}" type="video/mp4">
                 </video>
             {% endif %}
@@ -96,9 +109,37 @@
         }
 
         // Highlight active thumbnail
-        $(`#mediaContainer-${productId}`).siblings('div').find('.thumbnail').removeClass('active');
-        $(`#mediaContainer-${productId}`).siblings('div').find(`[src="${src}"]`).addClass('active');
+        $(`#mediaContainer-${productId}`).siblings('.thumbnails').find('.thumbnail').removeClass('active');
+        $(`#mediaContainer-${productId}`).siblings('.thumbnails').find(`[src="${src}"]`).addClass('active');
     }
+
+    // Swatch click behavior
+    document.querySelectorAll('.color-swatch').forEach(swatch => {
+        swatch.addEventListener('click', () => {
+            const color = swatch.getAttribute('data-color');
+            const productId = swatch.getAttribute('data-product');
+
+            // Highlight the active swatch
+            document.querySelectorAll(`#colorSwatches-${productId} .color-swatch`).forEach(el => el.classList.remove('active'));
+            swatch.classList.add('active');
+
+            // Find all thumbnails for this product
+            const productDiv = swatch.closest('.product');
+            const thumbnails = productDiv.querySelectorAll('.thumbnail, video.thumbnail');
+
+            // Find the first media matching the selected color
+            let found = false;
+            thumbnails.forEach(thumb => {
+                const mediaColor = thumb.getAttribute('data-color');
+                if (mediaColor === color && !found) {
+                    const src = thumb.getAttribute('src') || thumb.querySelector('source')?.getAttribute('src');
+                    const type = thumb.tagName.toLowerCase() === "video" ? "video" : "image";
+                    changeMedia(productId, type, src);
+                    found = true;
+                }
+            });
+        });
+    });
 </script>
 
 </body>
