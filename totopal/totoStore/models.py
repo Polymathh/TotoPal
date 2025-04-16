@@ -24,3 +24,20 @@ class ProductMedia(models.Model):
     def __str__(self):
         return f'{self.product.name} Media ({self.media_type}, {self.color})'
 
+class CartItem(models.Model):
+    session_key = models.CharField(max_length=225)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveBigIntegerField(default=1)
+
+
+class Order(models.Model):
+    session_key = models.CharField(max_length=255)
+    full_name = models.CharField(max_length=100, default='Unknown')
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    address = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    pay_now = models.BooleanField(default=False)  
+
+    def __str__(self):
+        return f"Order from {self.full_name}"

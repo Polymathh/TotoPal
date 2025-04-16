@@ -40,6 +40,18 @@
             border: 2px solid #000;
             box-shadow: 0 0 5px rgba(0,0,0,0.5);
         }
+        .buy-now-button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        .buy-now-button:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -92,6 +104,13 @@
             </div>
         {% endfor %}
     </div>
+
+    <!-- Buy Now Button -->
+    <form action="{% url 'add_to_cart' product.id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="buy-now-button">Buy Now</button>
+    </form>
+
 </div>
 {% endfor %}
 

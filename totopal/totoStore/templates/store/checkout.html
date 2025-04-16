@@ -1,0 +1,25 @@
+<h2>Checkout</h2>
+
+<form method="POST">
+  {% csrf_token %}
+  <label for="full_name">Full Name:</label><br>
+  <input type="text" name="full_name" id="full_name" required><br><br>
+
+  <label for="email">Email:</label><br>
+  <input type="email" name="email" id="email" required><br><br>
+
+  <label for="phone">Phone Number (with country code):</label><br>
+  <input type="text" name="phone" id="phone" placeholder="+2547..." required><br><br>
+
+  <label for="address">Address:</label><br>
+  <textarea name="address" id="address" rows="3" required></textarea><br><br>
+
+  <button type="submit">Place Order</button>
+</form>
+
+<h3>Your Cart</h3>
+<ul>
+  {% for item in cart_items %}
+    <li>{{ item.product.name }} - {{ item.quantity }} x ${{ item.product.price }}</li>
+  {% endfor %}
+</ul>
