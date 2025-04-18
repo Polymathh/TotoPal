@@ -40,16 +40,16 @@
             border: 2px solid #000;
             box-shadow: 0 0 5px rgba(0,0,0,0.5);
         }
-        .buy-now-button {
+        .buy-now-btn {
+            margin-top: 1rem;
+            padding: 0.6rem 1.2rem;
             background-color: #28a745;
-            color: white;
-            padding: 10px 20px;
+            color: #fff;
             border: none;
             cursor: pointer;
-            font-size: 16px;
-            border-radius: 5px;
+            font-size: 1rem;
         }
-        .buy-now-button:hover {
+        .buy-now-btn:hover {
             background-color: #218838;
         }
     </style>
@@ -59,7 +59,7 @@
 <h1>All Products</h1>
 
 {% for product in products %}
-<div class="product">
+<div class="product" id="product-{{ product.id }}">
     <h2>{{ product.name }}</h2>
     <p>{{ product.description }}</p>
     <p>Price: Ksh.{{ product.price }}</p>
@@ -106,11 +106,7 @@
     </div>
 
     <!-- Buy Now Button -->
-    <form action="{% url 'add_to_cart' product.id %}" method="POST">
-        {% csrf_token %}
-        <button type="submit" class="buy-now-button">Buy Now</button>
-    </form>
-
+    <button class="buy-now-btn" onclick="goToCart('{{ product.id }}')">Buy Now</button>
 </div>
 {% endfor %}
 
@@ -138,15 +134,12 @@
             const color = swatch.getAttribute('data-color');
             const productId = swatch.getAttribute('data-product');
 
-            // Highlight the active swatch
             document.querySelectorAll(`#colorSwatches-${productId} .color-swatch`).forEach(el => el.classList.remove('active'));
             swatch.classList.add('active');
 
-            // Find all thumbnails for this product
             const productDiv = swatch.closest('.product');
             const thumbnails = productDiv.querySelectorAll('.thumbnail, video.thumbnail');
 
-            // Find the first media matching the selected color
             let found = false;
             thumbnails.forEach(thumb => {
                 const mediaColor = thumb.getAttribute('data-color');
@@ -159,6 +152,15 @@
             });
         });
     });
+
+    function goToCart(productId) {
+        // Get the active color swatch for this product
+        const activeSwatch = document.querySelector(`#colorSwatches-${productId} .color-swatch.active`);
+        const color = activeSwatch ? activeSwatch.getAttribute('data-color') : '';
+
+        // Redirect to cart page with product ID and color
+        window.location.href = `/cart/add/?product_id=${productId}&color=${encodeURIComponent(color)}`;
+    }
 </script>
 
 </body>

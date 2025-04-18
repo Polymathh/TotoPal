@@ -22,16 +22,32 @@ def get_session_key(request):
     return request.session.session_key
 
 
-def add_to_cart(request, product):
-    session_key = get_session_key(request)
-    product = get_object_or_404(Product, product)
-    cart_item, created = CartItem.objects.get_or_create(session_key=session_key)
+def add_to_cart(request, product_id):
+    if request.method == "POST":
+        product = get_object_or_404(Product, id=product_id)
+        selected_color = request.POST.get('selected_color', '#ffffff')
+        cart = request.session.get('cart', {})
 
-    if not created:
-        cart_item.quantity += 1
-    cart_item.save()
+        key = f"{product_id}_{selected_color}"
+        if key in cart:
+            cart[key]['quantity'] += 1
+        else:
+            cart[key] = {
+                'product_id': product.id,
+                'name': product.name,
+                'price': float(product.price),
+                'color': selected_color,
+                'image': product.main_image.url if product.main_image else '',
+                'quantity': 1
+            }
 
-    return redirect('view_cart')
+        request.session['cart'] = cart
+        return redirect('your_cart')
+
+def your_cart(request):
+    cart = request.session.get('cart', {})
+    subtotal = sum(item['price'] * item['quantity'] for item in cart.values())
+    return render(request, 'cart.html', {'cart': cart, 'subtotal': subtotal})
 
 def view_cart(request):
     session_key = get_session_key(request)
